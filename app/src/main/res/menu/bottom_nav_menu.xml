@@ -3,16 +3,16 @@
     <item
         android:id="@+id/page_1"
         android:enabled="true"
-        android:icon="@drawable/ic_baseline_flight_land_24"
+        android:icon="@drawable/ic_baseline_flight_24"
         android:title="@string/text_label_1" />
     <item
         android:id="@+id/page_main"
         android:enabled="true"
-        android:icon="@drawable/ic_baseline_flight_24"
+        android:icon="@drawable/nearby_icon"
         android:title="@string/text_label_main" />
     <item
         android:id="@+id/page_2"
         android:enabled="true"
-        android:icon="@drawable/ic_baseline_flight_takeoff_24"
+        android:icon="@drawable/ic_favorite"
         android:title="@string/text_label_2" />
 </menu>
