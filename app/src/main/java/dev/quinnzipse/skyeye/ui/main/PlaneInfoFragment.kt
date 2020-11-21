@@ -9,10 +9,6 @@ import dev.quinnzipse.skyeye.R
 
 class PlaneInfoFragment : Fragment() {
 
-    companion object {
-        fun newInstance() = MainFragment()
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_plane_info, container, false)
