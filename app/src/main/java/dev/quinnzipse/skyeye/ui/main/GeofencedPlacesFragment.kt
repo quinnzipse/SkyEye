@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import dev.quinnzipse.skyeye.R
 
-class PlaneInfoFragment : Fragment() {
+class GeofencedPlacesFragment : Fragment() {
 
     companion object {
         fun newInstance() = MainFragment()
@@ -15,7 +15,7 @@ class PlaneInfoFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.fragment_plane_info, container, false)
+        return inflater.inflate(R.layout.fragment_geofenced_places_fragement, container, false)
     }
 
 }

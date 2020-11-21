@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/page_1"
+        android:id="@+id/flight_info"
         android:enabled="true"
         android:icon="@drawable/ic_baseline_flight_24"
         android:title="@string/text_label_1" />
     <item
-        android:id="@+id/page_main"
+        android:id="@+id/nearby"
         android:enabled="true"
         android:icon="@drawable/nearby_icon"
         android:title="@string/text_label_main" />
     <item
-        android:id="@+id/page_2"
+        android:id="@+id/favorites"
         android:enabled="true"
         android:icon="@drawable/ic_favorite"
         android:title="@string/text_label_2" />
