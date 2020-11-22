@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SkyEye Alpha</string>
+    <string name="app_name">SkyEye</string>
     <string name="text_label_1">Flight Info</string>
     <string name="text_label_main">Planes Nearby</string>
     <string name="text_label_2">Favorites</string>
