@@ -1,20 +1,18 @@
-package dev.quinnzipse.skyeye
+package dev.quinnzipse.skyeye.ui.main
 
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import dev.quinnzipse.skyeye.R
 import dev.quinnzipse.skyeye.models.Plane
 import kotlinx.android.synthetic.main.text_row_item.view.*
 
 
-class NearbyRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
-{
-
-    private val TAG: String = "QUINNZ TAG"
-
+class NearbyRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var items: List<Plane> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -24,12 +22,10 @@ class NearbyRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when(holder) {
-
+        when (holder) {
             is PlaneViewHolder -> {
                 holder.bind(items[position])
             }
-
         }
     }
 
@@ -37,21 +33,21 @@ class NearbyRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
         return items.size
     }
 
-    fun submitList(blogList: List<Plane>){
-        items = blogList
+    fun submitList(planes: List<Plane>) {
+        items = planes
+        Log.d("PLANE_ADAPTER", "List Received: ${planes.size}")
+        notifyDataSetChanged()
     }
 
     class PlaneViewHolder
     constructor(
         itemView: View
-    ): RecyclerView.ViewHolder(itemView){
+    ) : RecyclerView.ViewHolder(itemView) {
 
-        val planeName: TextView = itemView.plane_name
+        private val planeName: TextView = itemView.plane_name
 
-        fun bind(plane: Plane){
-
-            planeName.text = plane.icao24
-
+        fun bind(plane: Plane) {
+            planeName.text = plane.callsign
         }
 
     }

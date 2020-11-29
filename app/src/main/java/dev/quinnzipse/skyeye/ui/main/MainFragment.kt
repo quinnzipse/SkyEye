@@ -7,12 +7,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import dev.quinnzipse.skyeye.NearbyRecyclerAdapter
 import dev.quinnzipse.skyeye.R
 import dev.quinnzipse.skyeye.models.Plane
-import dev.quinnzipse.skyeye.models.PositionSources
+import dev.quinnzipse.skyeye.models.planeFactory
+import dev.quinnzipse.skyeye.network.OpenSkyDAO
 import kotlinx.android.synthetic.main.main_fragment.view.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class MainFragment : Fragment() {
 
@@ -28,26 +33,35 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initRecyclerView(view)
-        addDataSet()
+        getCurrentData(42, -95, 47, -91)
     }
 
-    private fun addDataSet() {
-        val list = ArrayList<Plane>()
-        list.add(createDefaultPlane("Test Plane 1"))
-        list.add(createDefaultPlane("Jill's Plane"))
-        list.add(createDefaultPlane("Quinn's Plane"))
-        list.add(createDefaultPlane("Test Plane 2"))
-        planeAdapter.submitList(list)
-    }
+    private fun getCurrentData(latMin: Int, lonMin: Int, latMax: Int, lonMax: Int) {
+        val BASE_URL = "https://opensky-network.org/"
+        val api = Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(OpenSkyDAO::class.java)
 
-    private fun createDefaultPlane(callsign: String): Plane {
-        return Plane(
-            callsign, "", "", 0, 0,
-            0F, 0F, 0F, false, 0F,
-            0F, 0F, 0F, "",
-            false, PositionSources.ADS_B
-        )
+        GlobalScope.launch(Dispatchers.IO) {
+            val response = api.getNearbyPlanes(latMin, lonMin, latMax, lonMax).execute()
+            Log.d("API", "Looking for the Planes!")
 
+            if (response.isSuccessful) {
+                Log.d("API", "Got the Planes!")
+                val data = response.body()
+
+                withContext(Dispatchers.Main) {
+                    val planes: List<Plane> = planeFactory(data)
+                    planeAdapter.submitList(planes)
+                }
+
+            } else {
+                Log.d("Q_API", response.errorBody().string())
+                Log.d("Q_API", response.raw().request().url().toString())
+            }
+        }
     }
 
     private fun initRecyclerView(view: View) {
