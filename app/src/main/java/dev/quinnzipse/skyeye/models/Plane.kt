@@ -1,4 +1,4 @@
-package dev.quinnzipse.skyeye
+package dev.quinnzipse.skyeye.models
 
 enum class PositionSources {
     ADS_B, ASTERIX, MLAT

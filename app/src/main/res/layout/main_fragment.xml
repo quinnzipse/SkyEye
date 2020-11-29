@@ -1,22 +1,36 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/linearLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.main.MainFragment">
+    tools:context=".MainActivity">
 
     <TextView
-        android:id="@+id/message"
-        android:layout_width="wrap_content"
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="16dp"
         android:text="@string/planes_nearby"
         android:textSize="30sp"
+        android:padding="20dp"
+        android:background="?cardForegroundColor"
+        android:textColor="?colorPrimaryDark"
+        app:layout_constraintBottom_toTopOf="@+id/rvPlanes"
+        app:layout_constraintStart_toStartOf="@+id/rvPlanes"
+        app:layout_constraintTop_toTopOf="parent"
+        app:drawableStartCompat="@drawable/nearby_icon"
+        android:drawablePadding="10dp"
+        app:drawableTint="?colorPrimaryDark" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvPlanes"
+        android:layout_width="412dp"
+        android:layout_height="653dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView2"
+        tools:listitem="@layout/text_row_item" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

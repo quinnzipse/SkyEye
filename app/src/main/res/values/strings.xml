@@ -6,4 +6,5 @@
     <string name="flight_info_text">Flight Info Page!</string>
     <string name="geofence_text">Geofence Page!</string>
     <string name="planes_nearby">Planes Nearby</string>
+    <string name="element_text">Sample Text</string>
 </resources>
