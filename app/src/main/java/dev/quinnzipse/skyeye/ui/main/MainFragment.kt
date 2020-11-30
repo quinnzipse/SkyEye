@@ -1,6 +1,5 @@
 package dev.quinnzipse.skyeye.ui.main
 
-import android.opengl.Visibility
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -49,7 +48,10 @@ class MainFragment : Fragment() {
 
         GlobalScope.launch(Dispatchers.IO) {
             try {
+                // Set the init UI state.
+                noPlanes.visibility = View.GONE
                 progressBar.visibility = View.VISIBLE
+
                 val response = api.getNearbyPlanes(latMin, lonMin, latMax, lonMax).execute()
                 Log.d("API", "Looking for the Planes!")
 
@@ -58,13 +60,22 @@ class MainFragment : Fragment() {
                     val data = response.body()
                     var planes: List<Plane> = ArrayList()
 
-                    withContext(Dispatchers.Default) {
-                        planes = planeFactory(data)
+                    if (planes.isNotEmpty()) {
+                        // create a list of planes from the response.
+                        withContext(Dispatchers.Default) {
+                            planes = planeFactory(data)
+                        }
                     }
 
                     withContext(Dispatchers.Main) {
-                        planeAdapter.submitList(planes)
                         progressBar.visibility = View.GONE
+
+                        if (planes.isEmpty()) {
+                            noPlanes.visibility = View.VISIBLE
+                        } else {
+                            planeAdapter.submitList(planes)
+                        }
+
                     }
 
                 } else {
@@ -73,7 +84,7 @@ class MainFragment : Fragment() {
                 }
 
             } catch (e: Exception) {
-                Log.d("Q_API", e.message.toString())
+                Log.d("Q_API", e.javaClass.canonicalName.toString())
             }
         }
     }
