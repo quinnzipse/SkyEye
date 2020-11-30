@@ -7,10 +7,10 @@ import retrofit2.http.GET
 interface OpenSkyDAO {
     @GET("api/states/all")
     fun getNearbyPlanes(
-        @Query("lamin") latitudeMin: Int,
-        @Query("lomin") longitudeMin: Int,
-        @Query("lamax") latitudeMax: Int,
-        @Query("lomax") longitudeMax: Int
+        @Query("lamin") latitudeMin: Float,
+        @Query("lomin") longitudeMin: Float,
+        @Query("lamax") latitudeMax: Float,
+        @Query("lomax") longitudeMax: Float
     ): Call<StateResponse>
 
 }

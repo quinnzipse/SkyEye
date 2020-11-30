@@ -10,17 +10,17 @@
         android:id="@+id/textView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/planes_nearby"
-        android:textSize="30sp"
-        android:padding="20dp"
         android:background="?cardForegroundColor"
+        android:drawablePadding="10dp"
+        android:padding="20dp"
+        android:text="@string/planes_nearby"
         android:textColor="?colorPrimaryDark"
+        android:textSize="30sp"
+        app:drawableStartCompat="@drawable/nearby_icon"
+        app:drawableTint="?colorPrimaryDark"
         app:layout_constraintBottom_toTopOf="@+id/rvPlanes"
         app:layout_constraintStart_toStartOf="@+id/rvPlanes"
-        app:layout_constraintTop_toTopOf="parent"
-        app:drawableStartCompat="@drawable/nearby_icon"
-        android:drawablePadding="10dp"
-        app:drawableTint="?colorPrimaryDark" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvPlanes"
@@ -32,5 +32,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView2"
         tools:listitem="@layout/text_row_item" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="212dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView2"
+        app:layout_constraintVertical_bias="0.127" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

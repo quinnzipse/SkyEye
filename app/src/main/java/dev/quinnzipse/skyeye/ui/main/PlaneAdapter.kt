@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import dev.quinnzipse.skyeye.R
 import dev.quinnzipse.skyeye.models.Plane
+import kotlinx.android.synthetic.main.main_fragment.*
 import kotlinx.android.synthetic.main.text_row_item.view.*
 
 
@@ -45,9 +46,15 @@ class NearbyRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     ) : RecyclerView.ViewHolder(itemView) {
 
         private val planeName: TextView = itemView.plane_name
+        private val lon: TextView = itemView.lon
+        private val lat: TextView = itemView.lat
+        private val altitude: TextView = itemView.altitude
 
         fun bind(plane: Plane) {
             planeName.text = plane.callsign
+            lat.text = plane.latitude.toString()
+            lon.text = plane.longitude.toString()
+            altitude.text = plane.barometerAltitude.toString()
         }
 
     }
