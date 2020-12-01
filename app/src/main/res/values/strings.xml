@@ -9,6 +9,8 @@
     <string name="element_text">Sample Text</string>
     <string name="latitude_longitude">Lat/Lon</string>
     <string name="altitude">Altitude</string>
+    <string name="altitudePlaceholder">%1$s M</string>
     <string name="icon_desc">Airplane Icon</string>
     <string name="no_planes">No Planes Nearby!</string>
+    <string name="unknown">Unknown</string>
 </resources>

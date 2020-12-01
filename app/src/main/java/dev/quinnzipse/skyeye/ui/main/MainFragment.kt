@@ -24,6 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -51,19 +52,26 @@ class MainFragment : Fragment() {
 
         if (hasLocationPermission(requireContext())) {
             Log.d("LOCATION", "HAS PERMISSION!")
-        }
 
-        fusedLocClient.lastLocation.addOnSuccessListener {
+            fusedLocClient.lastLocation.addOnSuccessListener {
 
-            val latitude = it.latitude.toFloat()
-            val longitude = it.longitude.toFloat()
+                val latitude = it.latitude.toFloat()
+                val longitude = it.longitude.toFloat()
 
-            getCurrentData(
-                latitude - threshold,
-                longitude - threshold,
-                latitude + threshold,
-                longitude + threshold
-            )
+                getCurrentData(
+                    latitude - threshold,
+                    longitude - threshold,
+                    latitude + threshold,
+                    longitude + threshold
+                )
+            }
+        } else {
+            val list: ArrayList<String> = ArrayList()
+            list.add(Manifest.permission.ACCESS_COARSE_LOCATION)
+            list.add(Manifest.permission.ACCESS_FINE_LOCATION)
+            if(EasyPermissions.somePermissionPermanentlyDenied(this, list)) {
+                AppSettingsDialog.Builder(this).build().show()
+            }
         }
     }
 
@@ -84,6 +92,7 @@ class MainFragment : Fragment() {
         val permissionList = mutableListOf<String>()
         permissionList.add(Manifest.permission.ACCESS_COARSE_LOCATION)
         permissionList.add(Manifest.permission.ACCESS_FINE_LOCATION)
+
         ActivityCompat.requestPermissions(requireActivity(), permissionList.toTypedArray(), 0)
     }
 
