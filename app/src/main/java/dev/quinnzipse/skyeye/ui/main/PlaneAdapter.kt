@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.quinnzipse.skyeye.R
 import dev.quinnzipse.skyeye.models.Plane
 import kotlinx.android.synthetic.main.text_row_item.view.*
+import java.lang.Math.round
 
 class NearbyRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var items: List<Plane> = ArrayList()
@@ -51,7 +52,9 @@ class NearbyRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             if (plane.callsign.isNotBlank()) planeName.text = plane.callsign.trim()
             lat.text = plane.latitude.toString().ifEmpty { "N/A" }
             lon.text = plane.longitude.toString().ifEmpty { "N/A" }
-            val alt = if (plane.barometerAltitude !== null) "${plane.barometerAltitude}m" else "N/A"
+            val alt =
+                if (plane.barometerAltitude !== null) "${round(plane.barometerAltitude)} m"
+                else "N/A"
             altitude.text = alt
         }
 

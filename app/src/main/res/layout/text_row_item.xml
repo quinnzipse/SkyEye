@@ -30,19 +30,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:minWidth="90sp"
+                android:text="@string/unknown"
                 android:textAlignment="center"
                 android:textSize="20sp"
                 app:layout_constraintBottom_toTopOf="@+id/imageView"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:text="@string/unknown"
                 tools:text="EDV4706" />
 
             <ImageView
                 android:id="@+id/imageView"
                 android:layout_width="40sp"
-                android:layout_height="30sp"
+                android:layout_height="40sp"
                 android:layout_weight="1"
                 android:contentDescription="@string/icon_desc"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -60,7 +60,7 @@
 
         <LinearLayout
             android:id="@+id/linearLayout4"
-            android:layout_width="wrap_content"
+            android:layout_width="90sp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -69,16 +69,23 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/latitude_longitude"
-                android:textSize="20sp"
+                android:textAlignment="center"
+                android:textSize="15sp"
                 tools:layout_editor_absoluteX="221dp" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
 
             <TextView
                 android:id="@+id/lat"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textAlignment="center"
                 android:textSize="20sp"
                 tools:layout_editor_absoluteX="90dp"
                 tools:layout_editor_absoluteY="32dp"
@@ -86,8 +93,9 @@
 
             <TextView
                 android:id="@+id/lon"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textAlignment="center"
                 android:textSize="20sp"
                 tools:layout_editor_absoluteX="180dp"
                 tools:layout_editor_absoluteY="47dp"
@@ -97,11 +105,11 @@
         <Space
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="2"/>
+            android:layout_weight="2" />
 
         <LinearLayout
             android:id="@+id/linearLayout3"
-            android:layout_width="wrap_content"
+            android:layout_width="100sp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -111,26 +119,28 @@
 
             <TextView
                 android:id="@+id/textView3"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/altitude"
-                android:textSize="20sp"
+                android:textAlignment="center"
+                android:textSize="15sp"
                 tools:layout_editor_absoluteX="292dp" />
 
             <TextView
                 android:id="@+id/altitude"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/altitudePlaceholder"
+                android:textAlignment="center"
                 android:textSize="20sp"
                 tools:layout_editor_absoluteX="329dp"
                 tools:layout_editor_absoluteY="27dp"
                 tools:text="617.22" />
-
         </LinearLayout>
+
         <Space
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="2" />
+            android:layout_weight="3" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

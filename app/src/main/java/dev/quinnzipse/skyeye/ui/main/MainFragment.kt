@@ -33,7 +33,7 @@ class MainFragment : Fragment() {
 
     private lateinit var planeAdapter: NearbyRecyclerAdapter
     private lateinit var fusedLocClient: FusedLocationProviderClient
-    private val threshold: Float = .5F
+    private val threshold: Float = .4F
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,13 +41,23 @@ class MainFragment : Fragment() {
     ): View {
         val view = inflater.inflate(R.layout.main_fragment, container, false)
         fusedLocClient = LocationServices.getFusedLocationProviderClient(view.context)
+
         return view
     }
 
-    @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initRecyclerView(view)
+        refreshRV()
+
+        swipeLayout.setOnRefreshListener {
+            refreshRV()
+            swipeLayout.isRefreshing = false
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun refreshRV() {
         requestPermissions()
 
         if (hasLocationPermission(requireContext())) {
@@ -69,7 +79,7 @@ class MainFragment : Fragment() {
             val list: ArrayList<String> = ArrayList()
             list.add(Manifest.permission.ACCESS_COARSE_LOCATION)
             list.add(Manifest.permission.ACCESS_FINE_LOCATION)
-            if(EasyPermissions.somePermissionPermanentlyDenied(this, list)) {
+            if (EasyPermissions.somePermissionPermanentlyDenied(this, list)) {
                 AppSettingsDialog.Builder(this).build().show()
             }
         }
@@ -107,8 +117,10 @@ class MainFragment : Fragment() {
         GlobalScope.launch(Dispatchers.IO) {
             try {
                 // Set the init UI state.
-                noPlanes.visibility = View.GONE
-                progressBar.visibility = View.VISIBLE
+                withContext(Dispatchers.Main) {
+                    noPlanes.visibility = View.GONE
+                    progressBar.visibility = View.VISIBLE
+                }
 
                 val response = api.getNearbyPlanes(latMin, lonMin, latMax, lonMax).execute()
 
