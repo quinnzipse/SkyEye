@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -34,6 +35,8 @@ class MainFragment : Fragment() {
     private lateinit var planeAdapter: NearbyRecyclerAdapter
     private lateinit var fusedLocClient: FusedLocationProviderClient
     private val threshold: Float = .4F
+    private val refreshTime: Long = 12000
+    private var cancel: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,14 +53,39 @@ class MainFragment : Fragment() {
         initRecyclerView(view)
         refreshRV()
 
+        keepUpdated()
+
         swipeLayout.setOnRefreshListener {
-            refreshRV()
-            swipeLayout.isRefreshing = false
+            refreshRV(false)
         }
     }
 
+    private fun keepUpdated() {
+        Handler().postDelayed(
+            {
+                if(!cancel) {
+                    refreshRV(false)
+                    keepUpdated()
+                }
+            },
+            refreshTime
+        )
+    }
+
+    @Override
+    override fun onPause() {
+        super.onPause()
+        cancel = true
+    }
+
+    @Override
+    override fun onDestroy() {
+        super.onDestroy()
+        cancel = true
+    }
+
     @SuppressLint("MissingPermission")
-    private fun refreshRV() {
+    private fun refreshRV(showLoader: Boolean = true) {
         requestPermissions()
 
         if (hasLocationPermission(requireContext())) {
@@ -72,7 +100,8 @@ class MainFragment : Fragment() {
                     latitude - threshold,
                     longitude - threshold,
                     latitude + threshold,
-                    longitude + threshold
+                    longitude + threshold,
+                    showLoader
                 )
             }
         } else {
@@ -106,7 +135,7 @@ class MainFragment : Fragment() {
         ActivityCompat.requestPermissions(requireActivity(), permissionList.toTypedArray(), 0)
     }
 
-    private fun getCurrentData(latMin: Float, lonMin: Float, latMax: Float, lonMax: Float) {
+    private fun getCurrentData(latMin: Float, lonMin: Float, latMax: Float, lonMax: Float, showLoader: Boolean) {
         val BASE_URL = "https://opensky-network.org/"
         val api = Retrofit.Builder()
             .baseUrl(BASE_URL)
@@ -118,8 +147,10 @@ class MainFragment : Fragment() {
             try {
                 // Set the init UI state.
                 withContext(Dispatchers.Main) {
-                    noPlanes.visibility = View.GONE
-                    progressBar.visibility = View.VISIBLE
+                    if(showLoader) {
+                        noPlanes.visibility = View.GONE
+                        progressBar.visibility = View.VISIBLE
+                    }
                 }
 
                 val response = api.getNearbyPlanes(latMin, lonMin, latMax, lonMax).execute()
@@ -137,9 +168,11 @@ class MainFragment : Fragment() {
 
                     withContext(Dispatchers.Main) {
                         progressBar.visibility = View.GONE
+                        swipeLayout.isRefreshing = false
 
                         if (planes.isEmpty()) {
                             noPlanes.visibility = View.VISIBLE
+                            planeAdapter.clear()
                         } else {
                             planeAdapter.submitList(planes)
                         }

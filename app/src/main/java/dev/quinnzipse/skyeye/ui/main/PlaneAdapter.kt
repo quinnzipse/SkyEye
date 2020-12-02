@@ -32,6 +32,11 @@ class NearbyRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         return items.size
     }
 
+    fun clear() {
+        items = ArrayList()
+        notifyDataSetChanged()
+    }
+
     fun submitList(planes: List<Plane>) {
         items = planes
         Log.d("PLANE_ADAPTER", "List Received: ${planes.size}")
