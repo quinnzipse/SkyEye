@@ -15,10 +15,16 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.MapsInitializer
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.model.LatLng
 import dev.quinnzipse.skyeye.R
 import dev.quinnzipse.skyeye.models.Plane
 import dev.quinnzipse.skyeye.models.planeFactory
 import dev.quinnzipse.skyeye.network.OpenSkyDAO
+import kotlinx.android.synthetic.main.fragment_plane_info.*
 import kotlinx.android.synthetic.main.main_fragment.*
 import kotlinx.android.synthetic.main.main_fragment.view.*
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +40,7 @@ class MainFragment : Fragment() {
 
     private lateinit var planeAdapter: NearbyRecyclerAdapter
     private lateinit var fusedLocClient: FusedLocationProviderClient
+    private lateinit var map: GoogleMap
     private val threshold: Float = .4F
     private val refreshTime: Long = 12000
     private var cancel: Boolean = false
@@ -63,7 +70,7 @@ class MainFragment : Fragment() {
     private fun keepUpdated() {
         Handler().postDelayed(
             {
-                if(!cancel) {
+                if (!cancel) {
                     refreshRV(false)
                     keepUpdated()
                 }
@@ -135,7 +142,13 @@ class MainFragment : Fragment() {
         ActivityCompat.requestPermissions(requireActivity(), permissionList.toTypedArray(), 0)
     }
 
-    private fun getCurrentData(latMin: Float, lonMin: Float, latMax: Float, lonMax: Float, showLoader: Boolean) {
+    private fun getCurrentData(
+        latMin: Float,
+        lonMin: Float,
+        latMax: Float,
+        lonMax: Float,
+        showLoader: Boolean
+    ) {
         val BASE_URL = "https://opensky-network.org/"
         val api = Retrofit.Builder()
             .baseUrl(BASE_URL)
@@ -147,7 +160,7 @@ class MainFragment : Fragment() {
             try {
                 // Set the init UI state.
                 withContext(Dispatchers.Main) {
-                    if(showLoader) {
+                    if (showLoader) {
                         noPlanes.visibility = View.GONE
                         progressBar.visibility = View.VISIBLE
                     }
@@ -171,14 +184,13 @@ class MainFragment : Fragment() {
                         swipeLayout.isRefreshing = false
 
                         if (planes.isEmpty()) {
-                            noPlanes.visibility = View.VISIBLE
                             planeAdapter.clear()
+                            noPlanes.visibility = View.VISIBLE
                         } else {
+                            noPlanes.visibility = View.GONE
                             planeAdapter.submitList(planes)
                         }
-
                     }
-
                 } else {
                     Log.d("Q_API", response.errorBody().string())
                     Log.d("Q_API", response.raw().request().url().toString())
@@ -206,5 +218,4 @@ class MainFragment : Fragment() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
-
 }
