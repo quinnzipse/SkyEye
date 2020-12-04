@@ -2,29 +2,23 @@ package dev.quinnzipse.skyeye.ui.main
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.MapsInitializer
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.model.LatLng
 import dev.quinnzipse.skyeye.R
 import dev.quinnzipse.skyeye.models.Plane
 import dev.quinnzipse.skyeye.models.planeFactory
 import dev.quinnzipse.skyeye.network.OpenSkyDAO
-import kotlinx.android.synthetic.main.fragment_plane_info.*
+import dev.quinnzipse.skyeye.services.LocationService.hasLocationPermission
+import dev.quinnzipse.skyeye.services.LocationService.requestPermissions
 import kotlinx.android.synthetic.main.main_fragment.*
 import kotlinx.android.synthetic.main.main_fragment.view.*
 import kotlinx.coroutines.Dispatchers
@@ -93,7 +87,7 @@ class MainFragment : Fragment() {
 
     @SuppressLint("MissingPermission")
     private fun refreshRV(showLoader: Boolean = true) {
-        requestPermissions()
+        requestPermissions(context!!, activity!!)
 
         if (hasLocationPermission(requireContext())) {
             Log.d("LOCATION", "HAS PERMISSION!")
@@ -121,26 +115,6 @@ class MainFragment : Fragment() {
         }
     }
 
-    private fun hasLocationPermission(context: Context) =
-        ActivityCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-
-    private fun requestPermissions() {
-        if (hasLocationPermission(requireContext())) {
-            return
-        }
-
-        val permissionList = mutableListOf<String>()
-        permissionList.add(Manifest.permission.ACCESS_COARSE_LOCATION)
-        permissionList.add(Manifest.permission.ACCESS_FINE_LOCATION)
-
-        ActivityCompat.requestPermissions(requireActivity(), permissionList.toTypedArray(), 0)
-    }
 
     private fun getCurrentData(
         latMin: Float,

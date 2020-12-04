@@ -12,6 +12,7 @@
         android:roundIcon="@mipmap/custom_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SkyEye">
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/m"/>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
