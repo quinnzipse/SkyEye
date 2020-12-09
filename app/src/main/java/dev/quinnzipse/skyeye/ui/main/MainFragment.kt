@@ -34,7 +34,6 @@ class MainFragment : Fragment() {
 
     private lateinit var planeAdapter: NearbyRecyclerAdapter
     private lateinit var fusedLocClient: FusedLocationProviderClient
-    private lateinit var map: GoogleMap
     private val threshold: Float = .4F
     private val refreshTime: Long = 12000
     private var cancel: Boolean = false
