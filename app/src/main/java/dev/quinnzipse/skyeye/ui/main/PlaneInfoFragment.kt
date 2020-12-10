@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -111,14 +112,14 @@ class PlaneInfoFragment : Fragment(), OnMapReadyCallback {
         map.moveCamera(CameraUpdateFactory.zoomTo(8.9F))
 
         keepUpdated()
+        fusedLocClient.getCurrentLocation(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, null)
+            .addOnSuccessListener {
+                val latitude = it.latitude.toFloat()
+                val longitude = it.longitude.toFloat()
 
-        fusedLocClient.lastLocation.addOnSuccessListener {
-            val latitude = it.latitude.toFloat()
-            val longitude = it.longitude.toFloat()
-
-            map.moveCamera(CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude)))
-            Log.d("MAP", "$latitude, $longitude")
-        }
+                map.moveCamera(CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude)))
+                Log.d("MAP", "$latitude, $longitude")
+            }
 //            GlobalScope.launch(Dispatchers.IO) {
 //                val response = api.getNearbyPlanes(
 //                    latitude - threshold,

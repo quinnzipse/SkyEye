@@ -2,16 +2,18 @@ package dev.quinnzipse.skyeye.ui.main
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.*
 import com.google.android.gms.maps.GoogleMap
 import dev.quinnzipse.skyeye.R
 import dev.quinnzipse.skyeye.models.Plane
@@ -21,10 +23,7 @@ import dev.quinnzipse.skyeye.services.LocationService.hasLocationPermission
 import dev.quinnzipse.skyeye.services.LocationService.requestPermissions
 import kotlinx.android.synthetic.main.main_fragment.*
 import kotlinx.android.synthetic.main.main_fragment.view.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
 import retrofit2.Retrofit
@@ -37,6 +36,7 @@ class MainFragment : Fragment() {
     private val threshold: Float = .4F
     private val refreshTime: Long = 12000
     private var cancel: Boolean = false
+    private var loc: Location? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,9 +51,9 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initRecyclerView(view)
-        refreshRV()
+        requestLocation()
 
-        keepUpdated()
+//        keepUpdated()
 
         swipeLayout.setOnRefreshListener {
             refreshRV(false)
@@ -84,17 +84,49 @@ class MainFragment : Fragment() {
         cancel = true
     }
 
+    private fun requestLocation() {
+        if (ActivityCompat.checkSelfPermission(
+                context!!,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                context!!,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.d("LOCATION", "No Permission")
+            requestPermissions(context!!, activity!!)
+            return
+        }
+
+        Log.d("LOCATION", "Trying to get location")
+        fusedLocClient.requestLocationUpdates(
+            LocationRequest.create(),
+            object : LocationCallback() {
+                override fun onLocationResult(locationResult: LocationResult?) {
+                    locationResult ?: return
+                    if (locationResult.locations.isNotEmpty()) {
+                        // get latest location
+                        loc = locationResult.lastLocation
+                    }
+                }
+            }, null
+        ).addOnSuccessListener {
+            refreshRV(true)
+        }
+
+    }
+
     @SuppressLint("MissingPermission")
     private fun refreshRV(showLoader: Boolean = true) {
+        if(cancel) return
         requestPermissions(context!!, activity!!)
 
         if (hasLocationPermission(requireContext())) {
             Log.d("LOCATION", "HAS PERMISSION!")
 
-            fusedLocClient.lastLocation.addOnSuccessListener {
-
-                val latitude = it.latitude.toFloat()
-                val longitude = it.longitude.toFloat()
+            if (loc != null) {
+                val latitude = loc!!.latitude.toFloat()
+                val longitude = loc!!.longitude.toFloat()
 
                 getCurrentData(
                     latitude - threshold,
@@ -103,6 +135,8 @@ class MainFragment : Fragment() {
                     longitude + threshold,
                     showLoader
                 )
+            } else {
+                requestLocation()
             }
         } else {
             val list: ArrayList<String> = ArrayList()
