@@ -35,7 +35,7 @@ class PlaneInfoFragment : Fragment(), OnMapReadyCallback {
     lateinit var api: OpenSkyDAO
     private val BASE_URL: String = "https://opensky-network.org/"
     private val threshold: Float = 1F
-    private val refreshTime: Long = 10000
+    private val refreshTime: Long = 5000
     private var cancel: Boolean = false
     private val markers: ArrayList<Marker> = ArrayList()
 
@@ -107,18 +107,18 @@ class PlaneInfoFragment : Fragment(), OnMapReadyCallback {
         map = gMap
         LocationService.requestPermissions(context!!, activity!!)
         map.isMyLocationEnabled = true
-        map.mapType = GoogleMap.MAP_TYPE_HYBRID
+        map.mapType = GoogleMap.MAP_TYPE_TERRAIN
         map.moveCamera(CameraUpdateFactory.zoomTo(8.9F))
 
         keepUpdated()
 
-//        fusedLocClient.lastLocation.addOnSuccessListener {
-//            val latitude = it.latitude.toFloat()
-//            val longitude = it.longitude.toFloat()
-//
-//            map.moveCamera(CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude)))
-//            Log.d("MAP", "$latitude, $longitude")
+        fusedLocClient.lastLocation.addOnSuccessListener {
+            val latitude = it.latitude.toFloat()
+            val longitude = it.longitude.toFloat()
 
+            map.moveCamera(CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude)))
+            Log.d("MAP", "$latitude, $longitude")
+        }
 //            GlobalScope.launch(Dispatchers.IO) {
 //                val response = api.getNearbyPlanes(
 //                    latitude - threshold,
@@ -148,9 +148,6 @@ class PlaneInfoFragment : Fragment(), OnMapReadyCallback {
 
     @SuppressLint("MissingPermission")
     private fun refreshMap() {
-        markers.forEach {
-            it.remove()
-        }
 
         LocationService.requestPermissions(context!!, activity!!)
         fusedLocClient.lastLocation.addOnSuccessListener {
@@ -165,13 +162,19 @@ class PlaneInfoFragment : Fragment(), OnMapReadyCallback {
                 ).execute()
 
                 if (response.isSuccessful) {
+                    withContext(Dispatchers.Main) {
+                        markers.forEach { marker ->
+                            marker.remove()
+                        }
+                    }
+
                     val planes = response.body().states
                     if (!planes.isNullOrEmpty()) {
 
                         // Generate the plane markers!
                         withContext(Dispatchers.Main) {
                             for (plane in planes) {
-                                addPlaneMarker(plane);
+                                markers.add(addPlaneMarker(plane));
                             }
                         }
 
