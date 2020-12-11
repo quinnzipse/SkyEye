@@ -3,7 +3,6 @@ package dev.quinnzipse.skyeye
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.bottomnavigation.BottomNavigationMenu
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dev.quinnzipse.skyeye.ui.main.GeofencedPlacesFragment
 import dev.quinnzipse.skyeye.ui.main.MainFragment
@@ -24,6 +23,8 @@ class MainActivity : AppCompatActivity() {
 
         bottomNav.setOnNavigationItemSelectedListener(navItemListener)
         bottomNav.selectedItemId = R.id.nearby
+
+
     }
 
     private val navItemListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->

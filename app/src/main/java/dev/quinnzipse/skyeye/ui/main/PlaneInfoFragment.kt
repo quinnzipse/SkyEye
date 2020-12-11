@@ -1,17 +1,20 @@
 package dev.quinnzipse.skyeye.ui.main
 
 import android.annotation.SuppressLint
-import android.graphics.Canvas
-import android.graphics.drawable.BitmapDrawable
-import android.os.Build
+import android.database.sqlite.SQLiteConstraintException
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.RequiresApi
+import android.widget.Toast
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
+import androidx.room.Database
+import androidx.room.RoomDatabase
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
@@ -21,21 +24,24 @@ import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.*
 import dev.quinnzipse.skyeye.R
+import dev.quinnzipse.skyeye.models.AircraftType
+import dev.quinnzipse.skyeye.models.AircraftTypeResult
+import dev.quinnzipse.skyeye.models.Favorite
+import dev.quinnzipse.skyeye.models.InFlightInfoResult
 import dev.quinnzipse.skyeye.network.FlightAware
 import dev.quinnzipse.skyeye.network.OpenSkyDAO
+import dev.quinnzipse.skyeye.services.AppDatabase
 import dev.quinnzipse.skyeye.services.LocationService
 import kotlinx.android.synthetic.main.fragment_plane_info.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.Dispatcher
 import pub.devrel.easypermissions.EasyPermissions
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.text.SimpleDateFormat
 import java.time.Instant
-import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -53,6 +59,12 @@ class PlaneInfoFragment : Fragment(), OnMapReadyCallback {
     private val paths: ArrayList<Polyline> = ArrayList()
     private lateinit var key: String
     private lateinit var userName: String
+    private lateinit var currentAircraftType: AircraftTypeResult
+    private lateinit var currentAircraft: InFlightInfoResult
+    private var isFavorited: Boolean = false
+    private lateinit var star: Drawable
+    private lateinit var favorite: Drawable
+    private lateinit var database: AppDatabase
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -74,8 +86,112 @@ class PlaneInfoFragment : Fragment(), OnMapReadyCallback {
 
         key = resources.getString(R.string.a)
         userName = resources.getString(R.string.u)
+        star = ResourcesCompat.getDrawable(resources, R.drawable.ic_baseline_star_border_24, null)!!
+        favorite = ResourcesCompat.getDrawable(resources, R.drawable.ic_baseline_star_24, null)!!
+        GlobalScope.launch(Dispatchers.Default) {
+            database = AppDatabase.invoke(context!!)
+        }
 
         return v
+    }
+
+    private fun fabClick(view: View) {
+        GlobalScope.launch(Dispatchers.IO) {
+            Log.d("FAB", currentAircraft.ident)
+
+            if (isFavorited) {
+                favoriteFAB.setImageDrawable(star)
+
+                database.FavoritesDAO().getByID(currentAircraft.faFlightID).also {
+                    if (it != null) {
+                        val rowsRemoved = database.FavoritesDAO().delete(it)
+                        Log.d("DATABASE", "Removed: $rowsRemoved")
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                context!!,
+                                "Removed ${currentAircraft.ident} from Favorites!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                context!!,
+                                "${currentAircraft.ident} wasn't found in Favorites!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+
+            } else {
+                favoriteFAB.setImageDrawable(favorite)
+
+
+                try {
+                    database.FavoritesDAO().insertAll(
+                        Favorite(
+                            currentAircraft.faFlightID,
+                            currentAircraft.ident,
+                            currentAircraftType.type,
+                            currentAircraftType.description,
+                            currentAircraftType.manufacturer,
+                            Date().time / 1000
+                        )
+                    )
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            context!!,
+                            "Added ${currentAircraft.ident} to Favorites!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+
+                } catch (e: SQLiteConstraintException) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            context!!,
+                            "${currentAircraft.ident} already exists!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+
+            isFavorited = !isFavorited
+
+            val list = database.FavoritesDAO().getAll()
+            list.forEach {
+                Log.d("DATABASE", it.icao)
+            }
+
+
+        }
+    }
+
+    private fun fabShow() {
+        GlobalScope.launch(Dispatchers.IO) {
+            database.FavoritesDAO().getByID(currentAircraft.faFlightID).also {
+                if (it == null) {
+                    isFavorited = false
+                    withContext(Dispatchers.Main) {
+                        favoriteFAB.setImageDrawable(star)
+                    }
+                } else {
+                    isFavorited = true
+                    withContext(Dispatchers.Main) {
+                        favoriteFAB.setImageDrawable(favorite)
+                    }
+                }
+            }
+        }
+
+        favoriteFAB.visibility = View.VISIBLE
+    }
+
+    private fun fabHide() {
+        isFavorited = false
+        favoriteFAB.visibility = View.GONE
     }
 
     override fun onDestroy() {
@@ -148,6 +264,10 @@ class PlaneInfoFragment : Fragment(), OnMapReadyCallback {
             false
         }
 
+        favoriteFAB.setOnClickListener {
+            fabClick(it)
+        }
+
     }
 
     private fun getFlightInfo(marker: Marker) {
@@ -166,13 +286,13 @@ class PlaneInfoFragment : Fragment(), OnMapReadyCallback {
 
             if (response.isSuccessful) {
                 Log.d("FLIGHT_INFO", "Successful!!!")
-                val info = response.body().InFlightInfoResult
+                currentAircraft = response.body().InFlightInfoResult
 
-                val typeRes = api.AircraftType(info.type).execute()
+                val typeRes = api.AircraftType(currentAircraft.type).execute()
 
                 val waypoints: ArrayList<LatLng> = ArrayList()
                 withContext(Dispatchers.Default) {
-                    val scanner = Scanner(info.waypoints)
+                    val scanner = Scanner(currentAircraft.waypoints)
                     val i = 0
                     while (scanner.hasNextDouble()) {
                         // Take only half of the waypoints.
@@ -183,20 +303,26 @@ class PlaneInfoFragment : Fragment(), OnMapReadyCallback {
                 }
 
                 if (typeRes.isSuccessful) {
-                    val aircraftType = typeRes.body().AircraftTypeResult
+                    currentAircraftType = typeRes.body().AircraftTypeResult
 
                     withContext(Dispatchers.Main) {
                         details.visibility = View.VISIBLE
-                        favoriteFAB.visibility = View.VISIBLE
+                        fabShow()
 
-                        flightName.text = info.ident
-                        origin.text = if (info.origin.isBlank()) "N/A" else info.origin
+                        flightName.text = currentAircraft.ident
+
+                        origin.text =
+                            if (currentAircraft.origin.isBlank()) "N/A"
+                            else currentAircraft.origin.substring(1)
                         destination.text =
-                            if (info.destination.isBlank()) "N/A" else info.destination
-                        val typeText = "${aircraftType.manufacturer} ${aircraftType.type}"
+                            if (currentAircraft.destination.isBlank()) "N/A"
+                            else currentAircraft.destination.substring(1)
+
+                        val typeText =
+                            "${currentAircraftType.manufacturer} ${currentAircraftType.type}"
                         type.text = typeText
                         eta.text = SimpleDateFormat.getTimeInstance(SimpleDateFormat.SHORT)
-                            .format(Date(info.departureTime.toLong() * 1000))
+                            .format(Date(currentAircraft.departureTime.toLong() * 1000))
 
                         paths.add(
                             map.addPolyline(
@@ -207,7 +333,7 @@ class PlaneInfoFragment : Fragment(), OnMapReadyCallback {
 
                         map.setOnMapClickListener {
                             details.visibility = View.GONE
-                            favoriteFAB.visibility = View.GONE
+                            fabHide()
                             paths.forEach {
                                 it.remove()
                             }
