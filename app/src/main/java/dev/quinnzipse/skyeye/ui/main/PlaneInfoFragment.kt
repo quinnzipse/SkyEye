@@ -134,8 +134,8 @@ class PlaneInfoFragment : Fragment(), OnMapReadyCallback {
                             currentAircraft.faFlightID,
                             currentAircraft.ident,
                             currentAircraftType.type,
-                            currentAircraftType.description,
                             currentAircraftType.manufacturer,
+                            currentAircraftType.description,
                             Date().time / 1000
                         )
                     )

@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import dev.quinnzipse.skyeye.ui.main.GeofencedPlacesFragment
+import dev.quinnzipse.skyeye.ui.main.FavoriteFragment
 import dev.quinnzipse.skyeye.ui.main.MainFragment
 import dev.quinnzipse.skyeye.ui.main.PlaneInfoFragment
 
@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
             R.id.favorites -> {
                 Log.d("QB_NAV", "Favorites Selected!")
                 supportFragmentManager.beginTransaction()
-                    .replace(R.id.container, GeofencedPlacesFragment())
+                    .replace(R.id.container, FavoriteFragment())
                     .commitNow()
                 return@OnNavigationItemSelectedListener true
             }
