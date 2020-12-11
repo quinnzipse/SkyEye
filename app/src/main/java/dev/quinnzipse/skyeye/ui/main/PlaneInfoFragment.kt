@@ -242,7 +242,7 @@ class PlaneInfoFragment : Fragment(), OnMapReadyCallback {
         LocationService.requestPermissions(context!!, activity!!)
         map.isMyLocationEnabled = true
         map.mapType = GoogleMap.MAP_TYPE_TERRAIN
-        map.moveCamera(CameraUpdateFactory.zoomTo(8.9F))
+        map.moveCamera(CameraUpdateFactory.zoomTo(9.4F))
 
         keepUpdated()
         fusedLocClient.getCurrentLocation(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, null)
@@ -356,31 +356,35 @@ class PlaneInfoFragment : Fragment(), OnMapReadyCallback {
             val latitude = it.latitude.toFloat()
             val longitude = it.longitude.toFloat()
             GlobalScope.launch(Dispatchers.IO) {
-                val response = api.getNearbyPlanes(
-                    latitude - threshold,
-                    longitude - threshold,
-                    latitude + threshold,
-                    longitude + threshold
-                ).execute()
+                try {
+                    val response = api.getNearbyPlanes(
+                        latitude - threshold,
+                        longitude - threshold,
+                        latitude + threshold,
+                        longitude + threshold
+                    ).execute()
 
-                if (response.isSuccessful) {
-                    withContext(Dispatchers.Main) {
-                        markers.forEach { marker ->
-                            marker.remove()
-                        }
-                    }
-
-                    val planes = response.body().states
-                    if (!planes.isNullOrEmpty()) {
-
-                        // Generate the plane markers!
+                    if (response.isSuccessful) {
                         withContext(Dispatchers.Main) {
-                            for (plane in planes) {
-                                markers.add(addPlaneMarker(plane))
+                            markers.forEach { marker ->
+                                marker.remove()
                             }
                         }
 
+                        val planes = response.body().states
+                        if (!planes.isNullOrEmpty()) {
+
+                            // Generate the plane markers!
+                            withContext(Dispatchers.Main) {
+                                for (plane in planes) {
+                                    markers.add(addPlaneMarker(plane))
+                                }
+                            }
+
+                        }
                     }
+                } catch (e: Exception) {
+                    Log.d("FLIGHT_INFO", "TIMEDOUT")
                 }
             }
         }
