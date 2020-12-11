@@ -13,4 +13,5 @@
     <string name="icon_desc">Airplane Icon</string>
     <string name="no_planes">No Planes Nearby!</string>
     <string name="unknown">Unknown</string>
+    <string name="arrow_right">Arrow Right</string>
 </resources>

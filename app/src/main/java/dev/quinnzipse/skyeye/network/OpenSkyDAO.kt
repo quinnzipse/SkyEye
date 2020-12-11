@@ -1,5 +1,6 @@
 package dev.quinnzipse.skyeye.network
 
+import dev.quinnzipse.skyeye.models.StateResponse
 import retrofit2.Call
 import retrofit2.http.Query
 import retrofit2.http.GET

@@ -34,7 +34,7 @@ class MainFragment : Fragment() {
     private lateinit var planeAdapter: NearbyRecyclerAdapter
     private lateinit var fusedLocClient: FusedLocationProviderClient
     private val threshold: Float = .4F
-    private val refreshTime: Long = 12000
+    private val refreshTime: Long = 5000
     private var cancel: Boolean = false
     private var loc: Location? = null
 
@@ -52,8 +52,6 @@ class MainFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initRecyclerView(view)
         requestLocation()
-
-//        keepUpdated()
 
         swipeLayout.setOnRefreshListener {
             refreshRV(false)
@@ -112,6 +110,7 @@ class MainFragment : Fragment() {
             }, null
         ).addOnSuccessListener {
             refreshRV(true)
+            keepUpdated()
         }
 
     }
@@ -136,7 +135,7 @@ class MainFragment : Fragment() {
                     showLoader
                 )
             } else {
-                requestLocation()
+                Log.d("LOCATION", "LOCATION IS UNSET!!")
             }
         } else {
             val list: ArrayList<String> = ArrayList()
@@ -179,7 +178,7 @@ class MainFragment : Fragment() {
                     val data = response.body()
                     var planes: List<Plane> = ArrayList()
 
-                    if (data != null && !data.states.isNullOrEmpty()) {
+                    if (data != null && !data.states.isNullOrEmpty() && !cancel) {
                         // create a list of planes from the response.
                         withContext(Dispatchers.Default) {
                             planes = planeFactory(data)

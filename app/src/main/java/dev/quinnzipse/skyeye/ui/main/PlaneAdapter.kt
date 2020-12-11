@@ -58,7 +58,8 @@ class NearbyRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             lat.text = plane.latitude.toString().ifEmpty { "N/A" }
             lon.text = plane.longitude.toString().ifEmpty { "N/A" }
             val alt =
-                if (plane.barometerAltitude !== null) "${round(plane.barometerAltitude)} m"
+                if (plane.onGround) "On Ground"
+                else if (plane.barometerAltitude != null) "${round(plane.barometerAltitude)} m"
                 else "N/A"
             altitude.text = alt
         }

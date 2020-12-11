@@ -1,7 +1,6 @@
 package dev.quinnzipse.skyeye.models
 
 import android.util.Log
-import dev.quinnzipse.skyeye.network.StateResponse
 
 enum class PositionSources {
     ADS_B, ASTERIX, MLAT, UNKNOWN
